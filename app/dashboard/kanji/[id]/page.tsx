@@ -204,6 +204,11 @@ export default function KanjiPage({ params }: { params: { id: string } }) {
                             placeholder="Добавить синоним"
                             value={newSynonym}
                             onChange={(e) => setNewSynonym(e.currentTarget.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleAddSynonym();
+                                }
+                              }}
                         />
                         <Button onClick={handleAddSynonym} mt="sm">Добавить</Button>
                     </Paper>
