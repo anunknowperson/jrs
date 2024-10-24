@@ -1,0 +1,9 @@
+.body {
+    width: 60%;
+    height: 100%;
+
+    /* Mobile display */
+    @media (max-width: 1200px) {
+        width: 100%;
+    }
+}
