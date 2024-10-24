@@ -165,7 +165,7 @@ export default function ReviewPage() {
         }
 
 
-
+        console.log(nextCard);
         try {
             await fetch(`/api/lessons/confirmreview?id=${subjectId}&type=${type}&result=${result}`);
             if (isCorrect) {
@@ -223,13 +223,13 @@ export default function ReviewPage() {
     }
 
     const { characters } = nextCard.subjectData.data;
-    var questionType = <div />; nextCard.fsrsCard.type === 'meaning' ? 'Что это означает?' : 'Как это прочитать?';
+    var questionType = <div />;
 
     if (nextCard.fsrsCard.type === 'meaning') {
         if (nextCard.fsrsCard.subjectType === "kanji") {
             questionType = <>Что означает этот <b>кандзи</b>?</>;
         } else if (nextCard.fsrsCard.subjectType === "radical") {
-            questionType = <>Что означает этот <b>ключ</b>?</>;
+            questionType = <>Как называется этот <b>ключ</b>?</>;
         } else {
             questionType = <>Что означает этот <b>слово</b>?</>;
         }

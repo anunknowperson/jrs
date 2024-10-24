@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-
+  
   try {
     const client = await clientPromise;
     const usersDb = client.db('users');
@@ -40,11 +40,13 @@ export async function GET(request: NextRequest) {
     }
 
     const now = new Date();
+    const tenMinutesInMs = 10 * 60 * 1000;  // 10 minutes in milliseconds
 
     // Filter and sort cards that are due
-    const dueCards = userDoc.fsrsCards.filter((fsrsCard: FSRSCard) => 
-      fsrsCard.card.due <= now
-    ).sort((a: FSRSCard, b: FSRSCard) => 
+    const dueCards = userDoc.fsrsCards.filter((fsrsCard: FSRSCard) => {
+      const timeDifference = fsrsCard.card.due.getTime() - now.getTime();
+      return timeDifference <= 0 || timeDifference <= tenMinutesInMs;
+    }).sort((a: FSRSCard, b: FSRSCard) =>
       a.card.due.getTime() - b.card.due.getTime()
     );
 
@@ -69,14 +71,14 @@ export async function GET(request: NextRequest) {
     let customUserData = null;
     switch (nextCard.subjectType) {
       case 'radical':
-        customUserData = await usersDb.collection('userRadicalData').findOne({ radicalId: nextCard.subjectId.toString() });
+        customUserData = await usersDb.collection('userRadicalData').findOne({ userId: session.user?.id, radicalId: nextCard.subjectId.toString() });
         break;
       case 'kanji':
-        customUserData = await usersDb.collection('userKanjiData').findOne({ kanjiId: nextCard.subjectId.toString() });
+        customUserData = await usersDb.collection('userKanjiData').findOne({ userId: session.user?.id, kanjiId: nextCard.subjectId.toString() });
         break;
       case 'vocabulary':
       case 'kana_vocabulary':
-        customUserData = await usersDb.collection('userWordData').findOne({ wordId: nextCard.subjectId.toString() });
+        customUserData = await usersDb.collection('userWordData').findOne({ userId: session.user?.id, wordId: nextCard.subjectId.toString() });
         break;
     }
 
@@ -86,7 +88,7 @@ export async function GET(request: NextRequest) {
       if ('characters' in subjectData.data) {
         omonym = await japaneseDb.collection(nextCard.subjectType).findOne({ 'data.characters': subjectData.data.characters });
       }
-      
+
     }
 
     return NextResponse.json({
