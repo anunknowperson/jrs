@@ -49,8 +49,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
+    const defaultParameters = {
+      request_retention: 0.9,
+      maximum_interval: 36500,
+      w: [0.4072,1.1829,3.1262,15.4722,7.2102,0.5316,1.0651,0.0234,1.616,0.1544,1.0824,1.9813,0.0953,0.2975,2.2042,0.2407,2.9466,0.5034,0.6567],
+      enable_fuzz: false,
+      enable_short_term: true,
+  }
+
     // Create or retrieve FSRS parameters
-    let fsrsParameters: FSRSParameters = userDoc.fsrsParameters || generatorParameters();
+    let fsrsParameters: FSRSParameters = userDoc.fsrsParameters || defaultParameters;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
 
