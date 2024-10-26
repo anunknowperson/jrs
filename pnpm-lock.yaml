@@ -48,8 +48,8 @@ dependencies:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
   ts-fsrs:
-    specifier: ^3.5.7
-    version: 3.5.7
+    specifier: ^4.4.2
+    version: 4.4.2
 
 devDependencies:
   '@types/bcryptjs':
@@ -2689,10 +2689,6 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
-  /seedrandom@3.0.5:
-    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
-    dev: false
-
   /semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -2948,11 +2944,9 @@ packages:
       typescript: 5.4.2
     dev: true
 
-  /ts-fsrs@3.5.7:
-    resolution: {integrity: sha512-xA18Igi1adkuCNgNjKkorjYgZq842+HdgRjatQPDERcrAWMlzM+3BwIbrF/Q0ijYEyw3NcTp3yJIMSO7agBLKQ==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      seedrandom: 3.0.5
+  /ts-fsrs@4.4.2:
+    resolution: {integrity: sha512-Tbf8MFOA5ZROgVWnHh0SyOPobWME04HAQznv9aDW4sljSzq1mOU2mwnnroGzDVixw5bKIYbJOc3Sg46d7P01vg==}
+    engines: {node: '>=18.0.0'}
     dev: false
 
   /tsconfig-paths@3.15.0:
