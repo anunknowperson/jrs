@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   }
 
     // Create or retrieve FSRS parameters
-    let fsrsParameters: FSRSParameters = userDoc.fsrsParameters || defaultParameters;
+    let fsrsParameters: FSRSParameters = defaultParameters || defaultParameters;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
 

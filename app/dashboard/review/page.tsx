@@ -43,10 +43,6 @@ export default function ReviewPage() {
     const [buttonText, setButtonText] = useState('Проверить');
     const [warning, setWarning] = useState('');
 
-    useEffect(() => {
-        fetchNextCard();
-    }, []);
-
     const fetchNextCard = async () => {
         try {
             const response = await fetch('/api/lessons/review');
@@ -65,6 +61,12 @@ export default function ReviewPage() {
             console.error('Error fetching next card:', error);
         }
     };
+
+    useEffect(() => {
+        fetchNextCard();
+    }, []);
+
+    
 
     const handleSubmit = async () => {
         if (!nextCard) return;
@@ -127,13 +129,19 @@ export default function ReviewPage() {
                 if (result == 'good' && type === 'reading') {
                     selected_reading = userAnswer.trim();
                 } else {
-                    var rds = nextCard.subjectData.data.readings.filter((reading: any) =>
-                        reading.primary
-                    );
+                    if (nextCard.fsrsCard.subjectType === "vocabulary") {
+                        var rds = nextCard.subjectData.data.readings.filter((reading: any) =>
+                         reading.primary
+                        );
 
-                    if (rds.length != 0) {
-                        selected_reading = rds[0].reading;
+                        if (rds.length != 0) {
+                            selected_reading = rds[0].reading;
+                        }
+                    } else {
+                        selected_reading = nextCard.subjectData.data.characters;
                     }
+
+                    
                 }
 
                 const filteredAudios = nextCard.subjectData.data.pronunciation_audios.filter((audio: any) =>

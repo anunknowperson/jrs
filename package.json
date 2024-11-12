@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0 -p 3540",
     "lint": "next lint"
   },
   "dependencies": {
@@ -36,6 +36,5 @@
     "postcss-preset-mantine": "1.15.0",
     "postcss-simple-vars": "^7.0.1",
     "typescript": "5.4.2"
-  },
-  "packageManager": "yarn@4.2.2"
+  }
 }
