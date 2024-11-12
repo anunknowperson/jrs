@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const tenMinutesInMs = 10 * 60 * 1000;  // 10 minutes in milliseconds
 
+
     // Filter and sort cards that are due
     const dueCards = userDoc.fsrsCards.filter((fsrsCard: FSRSCard) => {
       const timeDifference = fsrsCard.card.due.getTime() - now.getTime();
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     }).sort((a: FSRSCard, b: FSRSCard) =>
       a.card.due.getTime() - b.card.due.getTime()
     );
-
+    console.log(dueCards.length);
     const totalDueCards = dueCards.length;
 
     if (totalDueCards === 0) {

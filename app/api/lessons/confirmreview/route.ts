@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     const fsrsCard = userDoc.fsrsCards.find(
       (card :any) => card.subjectId === parseInt(id) && card.type === type
     );
+    console.log(fsrsCard);
     if (!fsrsCard) {
       return NextResponse.json({ message: 'Card not found' }, { status: 404 });
     }
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     const { card: newCard } = schedulingCards[rating];
 
-    
+    console.log(newCard);
 
     // Update the user's fsrsCards
     const updatedCards = userDoc.fsrsCards.map((card :any) =>
