@@ -2,6 +2,10 @@ import React from 'react';
 import { Text } from '@mantine/core';
 
 const HighlightedText = ({ children }:any) => {
+  if (children == null || children == "") {
+    return null;
+  }
+
   const parts = children.split(/(<radical>.*?<\/radical>|<kanji>.*?<\/kanji>|<vocabulary>.*?<\/vocabulary>|<ja>.*?<\/ja>|<reading>.*?<\/reading>)/);
 
   return (
