@@ -28,7 +28,7 @@ const KanjiLine = ({ id } :any) => {
   return (
     <Button component={Link}
     color='#FF00AA'
-    href={`/dashboard/kanjis/${id}`} h="60px" style={{ border: 'solid 1px white' }} justify="space-between" fullWidth leftSection={
+    href={`/dashboard/kanji/${id}`} h="60px" style={{ border: 'solid 1px white' }} justify="space-between" fullWidth leftSection={
         <Text size="xl" style={{ fontSize: '2rem', lineHeight: 1 }}><span lang="ja">{kanji.characters}</span></Text>
     } rightSection={
         <Stack gap={0} >
