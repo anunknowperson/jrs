@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
     const today = now.toISOString().split('T')[0];
 
     const newFsrsCards: FSRSCard[] = [];
-    const tables = ['kana_vocabulary', 'kanji', 'radical', 'vocabulary'];
+    
+    const tables = ['radical', 'kanji', 'vocabulary', 'kana_vocabulary'];
 
     for (const subject of learnedSubjects) {
       // Check all four tables for the subject
