@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const japaneseDb = client.db('japanese');
 
     // Fetch user document
-    const userDoc = await usersDb.collection<UserDocument>('users').findOne({ username: session.user?.name });
+    const userDoc = await usersDb.collection('users').findOne({ username: session.user?.name });
     if (!userDoc) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
