@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     // Calculate how many lessons can be returned
     const availableLessons = maximumLessonsPerDay - lessonsRequestedToday;
     const lessonsToReturn = Math.min(count, availableLessons);
-
+    console.log(availableLessons);
     if (lessonsToReturn === 0) {
       return NextResponse.json({ subjects: [], total: 0 });
     }
@@ -71,15 +71,9 @@ export async function GET(request: NextRequest) {
     // Slice the next lessons
     const nextLessons = allLessons.slice(startIndex, endIndex);
 
-    const newLessonsRequestedCount = lessonsRequestedToday + nextLessons.length;
-    
-
-    // Calculate the total remaining lessons for today
-    const remainingLessons = maximumLessonsPerDay - newLessonsRequestedCount;
-
     return NextResponse.json({
       subjects: nextLessons,
-      total: remainingLessons
+      total: availableLessons
     });
   } catch (error) {
     console.error(error);
