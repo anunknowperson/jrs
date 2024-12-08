@@ -67,7 +67,7 @@ const getLevelName = (id: number) => {
 }
 
 const getLevelNumbers = (id: number) => {
-    return `Уровни ${id * 10 + 1} - ${id * 10}`;
+    return `Уровни ${id * 10 + 1} - ${(id+1) * 10}`;
 }
 
 const createLevelButton = (id: number, href: string, onClose: () => void) => {
