@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/auth';
 import clientPromise from '../../../../util/mongodb';
-import { createEmptyCard, FSRSParameters, generatorParameters, Card } from 'ts-fsrs';
+import { createEmptyCard, FSRSParameters, Card } from 'ts-fsrs';
 
 interface LearnedSubject {
   id: string;
@@ -23,8 +23,8 @@ interface UserDocument {
   lessonsRequestedToday?: { date: string; count: number };
   lessonsPerSession?: number;
   fsrsCards?: FSRSCard[];
+  level?: number;
 }
-
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -44,28 +44,31 @@ export async function POST(request: NextRequest) {
     const japaneseDb = client.db('japanese');
 
     // Fetch user document
-    const userDoc = await usersDb.collection('users').findOne({ username: session.user?.name });
+    const userDoc = await usersDb.collection<UserDocument>('users').findOne({ username: session.user?.name });
     if (!userDoc) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const defaultParameters = {
+    const userLevel = userDoc.level || 1;
+
+    const defaultParameters: FSRSParameters = {
       request_retention: 0.9,
       maximum_interval: 36500,
       w: [0.4072,1.1829,3.1262,15.4722,7.2102,0.5316,1.0651,0.0234,1.616,0.1544,1.0824,1.9813,0.0953,0.2975,2.2042,0.2407,2.9466,0.5034,0.6567],
       enable_fuzz: false,
       enable_short_term: true,
-  }
+    };
 
     // Create or retrieve FSRS parameters
-    let fsrsParameters: FSRSParameters = defaultParameters || defaultParameters;
+    let fsrsParameters: FSRSParameters = userDoc.fsrsParameters || defaultParameters;
     const now = new Date();
     const today = now.toISOString().split('T')[0];
 
     const newFsrsCards: FSRSCard[] = [];
+    const tables = ['kana_vocabulary', 'kanji', 'radical', 'vocabulary'];
+
     for (const subject of learnedSubjects) {
       // Check all four tables for the subject
-      const tables = ['kana_vocabulary', 'kanji', 'radical', 'vocabulary'];
       let subjectData = null;
       let subjectType = '';
       for (const table of tables) {
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
       };
       newFsrsCards.push(meaningCard);
 
-      // Create 'reading' card for non-radical subjects
+      // Create 'reading' card for non-radical, non-kana_vocabulary subjects
       if (subjectType !== 'radical' && subjectType !== 'kana_vocabulary') {
         const readingCard: FSRSCard = {
           subjectType: subjectType,
@@ -107,12 +110,41 @@ export async function POST(request: NextRequest) {
       : 0;
     const newLessonsRequestedToday = currentLessonsRequestedToday + (userDoc.lessonsPerSession || 0);
 
-    // Update user document with new FSRS cards, last lesson position, FSRS parameters, and lessons requested today
-    const lastLessonPosition = Math.max(...learnedSubjects.map(subject => subject.lessonPosition));
+    // Increment lastLessonPosition by the number of submitted lessons (not by max of lessonPosition)
+    const learnedCount = learnedSubjects.length;
+    let lastLessonPosition = (userDoc.lastLessonPosition ?? -1) + learnedCount;
+
+    // Check if user has completed all lessons at current level
+    // To do that, find the max lesson_position at this level across all collections
+    let maxLessonPosition = -1;
+    for (const collection of tables) {
+      const maxPositionResult = await japaneseDb.collection(collection)
+        .find({ 'data.level': userLevel })
+        .sort({ 'data.lesson_position': -1 })
+        .limit(1)
+        .toArray();
+
+      if (maxPositionResult.length > 0) {
+        const pos = maxPositionResult[0].data.lesson_position;
+        if (pos > maxLessonPosition) {
+          maxLessonPosition = pos;
+        }
+      }
+    }
+
+    // If user has completed all lessons at current level, increment level and reset lastLessonPosition
+    let newUserLevel = userLevel;
+    if (lastLessonPosition >= maxLessonPosition && maxLessonPosition !== -1) {
+      newUserLevel++;
+      lastLessonPosition = -1;
+    }
+
+    // Update user document
     await usersDb.collection<UserDocument>('users').updateOne(
       { username: session.user.name! },
       {
         $set: {
+          level: newUserLevel,
           lastLessonPosition: lastLessonPosition,
           fsrsParameters: fsrsParameters,
           lessonsRequestedToday: { date: today, count: newLessonsRequestedToday }
@@ -123,7 +155,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    return NextResponse.json({ message: 'Lesson positions, FSRS cards, and lessons requested today updated successfully' });
+    return NextResponse.json({ message: 'Level, lesson position, FSRS cards, and lessons requested today updated successfully' });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });

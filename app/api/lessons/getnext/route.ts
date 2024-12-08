@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
   const n = searchParams.get('n') || '5';
-  const count = parseInt(n);
+  const count = parseInt(n, 10);
 
   try {
     const client = await clientPromise;
@@ -43,50 +43,39 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ subjects: [], total: 0 });
     }
 
-    const collections = ['kana_vocabulary', 'kanji', 'radical', 'vocabulary'];
-    
-    // Check if user has completed all lessons at current level
-    let maxLessonPosition = 0;
+    const collections = ['radical', 'kanji', 'vocabulary', 'kana_vocabulary'];
+
+    // Retrieve ALL subjects for the current userLevel across all collections
+    let allLessons: any[] = [];
     for (const collection of collections) {
-      const maxPositionResult = await db.collection(collection)
+      const lessons = await db
+        .collection(collection)
         .find({ 'data.level': userLevel })
-        .sort({ 'data.lesson_position': -1 })
-        .limit(1)
         .toArray();
-
-      if (maxPositionResult.length > 0) {
-        maxLessonPosition = Math.max(maxLessonPosition, maxPositionResult[0].data.lesson_position);
-      }
+      
+      // Tag each lesson with its collection name
+      allLessons = allLessons.concat(lessons.map((lesson: any) => ({ ...lesson, collection })));
     }
 
-    // If user has completed all lessons, increment level and reset lastLessonPosition
-    if (lastLessonPosition >= maxLessonPosition) {
-      userLevel++;
-      lastLessonPosition = -1;
-      await usersDb.collection('users').updateOne(
-        { username: session.user?.name },
-        { $set: { level: userLevel, lastLessonPosition: lastLessonPosition } }
-      );
-    }
+    // Sort all lessons by lesson_position
+    allLessons.sort((a, b) => a.data.lesson_position - b.data.lesson_position);
 
-    let allLessons: any = [];
-    for (const collection of collections) {
-      const lessons = await db.collection(collection)
-        .find({
-          'data.level': userLevel,
-          'data.lesson_position': { $gt: lastLessonPosition }
-        })
-        .sort({ 'data.lesson_position': 1 })
-        .toArray();
-     
-      allLessons = allLessons.concat(lessons.map(lesson => ({...lesson, collection})));
-    }
+    // Determine the start and end index for the next lessons
+    const startIndex = lastLessonPosition + 1;
+    const endIndex = startIndex + lessonsToReturn;
 
-    allLessons.sort((a: any, b: any) => a.data.lesson_position - b.data.lesson_position);
-    const nextLessons = allLessons.slice(0, lessonsToReturn);
+    console.log(startIndex);
+	console.log(endIndex);
+
+
+    // Slice the next lessons
+    const nextLessons = allLessons.slice(startIndex, endIndex);
+
+    const newLessonsRequestedCount = lessonsRequestedToday + nextLessons.length;
+    
 
     // Calculate the total remaining lessons for today
-    const remainingLessons = maximumLessonsPerDay - lessonsRequestedToday;
+    const remainingLessons = maximumLessonsPerDay - newLessonsRequestedCount;
 
     return NextResponse.json({
       subjects: nextLessons,
