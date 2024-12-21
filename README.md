@@ -1,3 +1,5 @@
+![NodeJS](https://github.com/anunknowperson/jrs/actions/workflows/node.js.yml/badge.svg)
+
 # JRS - Japanese Repetition System
 
 A web application for learning Japanese through mnemonic techniques.
