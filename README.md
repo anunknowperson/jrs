@@ -61,7 +61,7 @@ Ensure your MongoDB instance contains a database named **Japanese** with the fol
 
 Each document in the collections should follow this format:
 
-```json
+```ts
 {
   "id": number,
   "data": {
