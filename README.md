@@ -1,4 +1,3 @@
-```markdown
 # JRS - Japanese Repetition System
 
 A web application for learning Japanese through mnemonic techniques.
@@ -147,4 +146,3 @@ We welcome contributions to JRS! Here’s how you can contribute:
 
 For issues, feature requests, or general discussion, please open an issue in the repository.  
 All contributions are appreciated!
-```
